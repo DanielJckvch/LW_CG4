@@ -10,17 +10,18 @@
 #pragma package(smart_init)
 #pragma resource "*.dfm"
 TForm1 *Form1;
-//Призма
+//Призма. Поворот и перенос вокруг всех осей, масштабирование.
 void print(MyPoint* o, TImage* Image1);
 void rotandscale(MyPoint* o, bool sw, bool sign);
-
 void prisminit(MyPoint* o);
-MyPoint* prism=new MyPoint[6];
-double h=150.0;
 
-int x=200;
-int y=400;
-int rad=100;
+MyPoint* prism=new MyPoint[6];
+
+double h=50.0;
+int d=200;
+double z_plane=100.0;
+double z=500.0;
+
 double a_step=10;
 int sc_step=2;
 int mov_step=10;
@@ -45,7 +46,7 @@ void __fastcall TForm1::Form1Create(TObject *Sender)
 prisminit(prism);
 print(prism, Image1);
 Edit1->Text="X";
-Edit2->Text="Pr1";
+Edit2->Text="Isometric";
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::Button1Click(TObject *Sender)
@@ -210,21 +211,21 @@ if(f3)
         {
         proj_mode=1;
         f4=0;
-        Edit2->Text="Pr2";
+        Edit2->Text="Cavalier";
         }
         else
         {
         proj_mode=2;
         f3=0;
         f4=1;
-        Edit2->Text="Pr3";
+        Edit2->Text="Perspective";
         }
 }
 else
 {
 proj_mode=0;
 f3=1;
-Edit2->Text="Pr1";
+Edit2->Text="Isometric";
 }
 //Очистка холста
 TRect rct;
@@ -242,8 +243,12 @@ int k;
 double pi = 3.1415926;
 double a; //x
 double b; //y
-int d=200;
 double proj[4][4];
+double per[4][4];
+per[0][0]=1;per[0][1]=0;per[0][2]=0;per[0][3]=0;
+per[1][0]=0;per[1][1]=1;per[1][2]=0;per[1][3]=0;
+per[2][0]=0;per[2][1]=0;per[2][2]=1;per[2][3]=-z_plane;
+per[3][0]=0;per[3][1]=0;per[3][2]=0;per[3][3]=1;
 switch(proj_mode)
 {
 case 0:
@@ -254,23 +259,31 @@ proj[1][0]=-sin(a);proj[1][1]=cos(a)*cos(b);proj[1][2]=sin(b)*cos(a);proj[1][3]=
 proj[2][0]=0;proj[2][1]=-sin(b);proj[2][2]=cos(b);proj[2][3]=0;
 proj[3][0]=0;proj[3][1]=0;proj[3][2]=0;proj[3][3]=1;
 break;
+case 1:
+a=45.0*pi/180; //x
+//b=35.26*pi/180; //y
+proj[0][0]=1;proj[0][1]=0;proj[0][2]=0;proj[0][3]=0;
+proj[1][0]=0;proj[1][1]=1;proj[1][2]=0;proj[1][3]=0;
+proj[2][0]=-cos(a);proj[2][1]=-sin(a);proj[2][2]=1;proj[2][3]=0;
+proj[3][0]=0;proj[3][1]=0;proj[3][2]=0;proj[3][3]=1;
+break;
+case 2:
+a=45.0*pi/180; //x
+b=35.26*pi/180; //y
+proj[0][0]=cos(a);proj[0][1]=sin(a)*cos(b);proj[0][2]=sin(a)*sin(b);proj[0][3]=0;
+proj[1][0]=-sin(a);proj[1][1]=cos(a)*cos(b);proj[1][2]=cos(a)*sin(b);proj[1][3]=0;
+proj[2][0]=0;proj[2][1]=-sin(b);proj[2][2]=cos(b);proj[2][3]=-z_plane;
+proj[3][0]=0;proj[3][1]=0;proj[3][2]=0;proj[3][3]=1;
+ break;
 }
-double zrot[4][4]=
-{{1,0,0,0},
-{0,cos(b),sin(b),0},
-{0,-sin(b),cos(b),0},
-{0,0,0,1}};
-double zproj[4][4]=
-{{1,0,0,0},
-{0,1,0,0},
-{0,0,0,0},
-{0,0,0,1}};
 double sp[6][4];
 for(k=0;k<6;k++)
 {
+int i, j;
+
 double v1[4]={o[k].get_x(),o[k].get_y(),o[k].get_z(),1};
 double v2[4]={0, 0, 0, 1};
-int i, j;
+
 for (i = 0;i < 4;i++)
 {
         double sum = 0;
@@ -280,6 +293,27 @@ for (i = 0;i < 4;i++)
         }
 
         v2[i] = sum;
+}
+if(proj_mode==2)
+{
+int i, j;
+
+//double v[4]={v2[0],v2[1],v2[2],1};
+//double v1[4]={0, 0, 0, 1};
+for(i=0;i<2;i++)
+{
+per[i][i]=(z-z_plane)/(z-o[k].get_z());
+}
+for (i = 0;i < 4;i++)
+{
+        double sum = 0;
+        for (j = 0;j < 4;j++)
+        {
+                sum= sum+ (per[j][i] * v2[j]);
+        }
+
+        v2[i] = sum;
+}
 }
 sp[k][0]= v2[0];
 sp[k][1]= v2[1];
@@ -314,7 +348,7 @@ else
 {
  Image1->Canvas->LineTo(sp[k-2][0]+d,sp[k-2][1]+d);
 }
-Image1->Canvas->TextOutA(sp[k][0]+d,sp[k][1]+d,o[k].get_let());
+Image1->Canvas->TextOutA(sp[k][0]+d+1,sp[k][1]+d+3,o[k].get_let());
 }
 for(k=0; k<3;k++)
 {
@@ -384,6 +418,7 @@ r[3][0]=0; r[3][1]=0; r[3][2]=0; r[3][3]=1;
  r[2][0]=0; r[2][1]=0; r[2][2]=1; r[3][3]=0;
  r[3][0]=0; r[3][1]=0; r[3][2]=0; r[3][3]=1;
  break;
+
  }
  }
  int k=0;
@@ -410,9 +445,9 @@ o[k].set_z(v2[2]);
 }
 void prisminit(MyPoint* o)
 { int i=0;
-  o[0]=MyPoint('A',100.0,300.0,-h/2);
-  o[1]=MyPoint(char('A'+1),100.0,100.0,-h/2);
-  o[2]=MyPoint(char('A'+2),300.0,100.0,-h/2);
+  o[0]=MyPoint('A',0.0,200.0,-h/2);
+  o[1]=MyPoint(char('A'+1),0.0,0.0,-h/2);
+  o[2]=MyPoint(char('A'+2),200.0,0.0,-h/2);
  for(i=3; i<6; i++)
  {
  o[i]=MyPoint(char('A'+i),o[i-3].get_x(),o[i-3].get_y(),o[i-3].get_z()+h);
