@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 183
-  Top = 124
+  Left = 195
+  Top = 196
   Width = 1135
   Height = 584
   Caption = 'Form1'
@@ -17,8 +17,8 @@ object Form1: TForm1
   object Image1: TImage
     Left = 0
     Top = 0
-    Width = 929
-    Height = 537
+    Width = 585
+    Height = 513
   end
   object Button1: TButton
     Left = 600
@@ -57,39 +57,55 @@ object Form1: TForm1
     OnClick = Button4Click
   end
   object Button5: TButton
-    Left = 632
-    Top = 304
+    Left = 616
+    Top = 248
     Width = 75
     Height = 25
-    Caption = #1042#1083#1077#1074#1086
+    Caption = '-'
     TabOrder = 4
     OnClick = Button5Click
   end
   object Button6: TButton
-    Left = 752
-    Top = 304
+    Left = 792
+    Top = 248
     Width = 75
     Height = 25
-    Caption = #1042#1087#1088#1072#1074#1086
+    Caption = '+'
     TabOrder = 5
     OnClick = Button6Click
   end
   object Button7: TButton
-    Left = 712
-    Top = 336
-    Width = 33
-    Height = 73
-    Caption = #1042#1085#1080#1079
+    Left = 616
+    Top = 192
+    Width = 73
+    Height = 25
+    Caption = #1054#1089#1100
     TabOrder = 6
     OnClick = Button7Click
   end
   object Button8: TButton
-    Left = 712
-    Top = 224
-    Width = 33
-    Height = 73
-    Caption = #1042#1074#1077#1088#1093
+    Left = 792
+    Top = 192
+    Width = 73
+    Height = 25
+    Caption = #1055#1088#1086#1077#1082#1094#1080#1103
     TabOrder = 7
     OnClick = Button8Click
+  end
+  object Edit1: TEdit
+    Left = 616
+    Top = 160
+    Width = 121
+    Height = 21
+    TabOrder = 8
+    Text = 'Edit1'
+  end
+  object Edit2: TEdit
+    Left = 792
+    Top = 160
+    Width = 121
+    Height = 21
+    TabOrder = 9
+    Text = 'Edit2'
   end
 end
